@@ -1,0 +1,47 @@
+services:
+  app:
+    build:
+      context: ./docker/php
+    container_name: solicitation_app
+    working_dir: /var/www
+    volumes:
+      - ./src:/var/www
+      - ./docker/php/local.ini:/usr/local/etc/php/conf.d/local.ini
+    networks:
+      - solicitation
+
+  webserver:
+    image: nginx:stable-alpine
+    container_name: solicitation_webserver
+    working_dir: /var/www
+    volumes:
+      - ./src:/var/www
+      - ./docker/nginx/default.conf:/etc/nginx/conf.d/default.conf
+    ports:
+      - "8080:80"
+    networks:
+      - solicitation
+    depends_on:
+      - app
+
+  db:
+    image: mariadb:10.5
+    container_name: solicitation_db
+    environment:
+      MYSQL_DATABASE: solicitation
+      MYSQL_ROOT_PASSWORD: secret
+      MYSQL_USER: user
+      MYSQL_PASSWORD: secret
+    ports:
+      - "3306:3306"
+    networks:
+      - solicitation
+    volumes:
+      - dbdata:/var/lib/mysql
+
+networks:
+  solicitation:
+    driver: bridge
+
+volumes:
+  dbdata:
