@@ -8,6 +8,11 @@ class Solicitation extends Model
 {
     protected $table = 'solicitations';
 
+    public function user()
+    {
+        return $this->belongsTo(User::class);
+    }
+
     protected $fillable = [
         'user_id',
         'title',
