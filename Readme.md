@@ -1,4 +1,4 @@
-# Teste para Vaga de Desenvolvedor PHP Sênior - Sistema de Gestão de Solicitações
+# Sistema de Gestão de Solicitações
 
 ## Objetivo
 
@@ -8,13 +8,18 @@ Desenvolver uma aplicação web simples para gerenciar solicitações internas d
 
 -   Rodar container
 
-docker compose up -d
+`docker compose up -d`
 
 -   Rodar Migration e adicionar dados padrões
 
-php artisan migrate
-php artisan db:seed
+`php artisan migrate`\
+`php artisan db:seed`
+
+-   Executar testes
+
+`./vendor/bin/phpunit` (caso esteja instalado somente no ambiente local)\
+`phpunit` (caso esteja instalado globalmente)
 
 -   Subir Laravel
 
-php artisan serve --port 8088
+`php artisan serve --port 8088`

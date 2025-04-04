@@ -18,7 +18,6 @@
     <table class="table table-striped">
         <thead>
             <tr>
-                <th>#ID</th>
                 <th>Título</th>
                 <th>Descrição</th>
                 <th>Categoria</th>
@@ -31,17 +30,16 @@
         <tbody>
             @if ($solicitations->isEmpty())
                 <tr>
-                    <td colspan="8">Nenhuma solicitação encontrada.</td>
+                    <td colspan="7">Nenhuma solicitação encontrada.</td>
                 </tr>
             @endif
             @foreach($solicitations as $solicitation)
                 <tr>
                     <td>
                         <a href="{{ route('solicitations.show', $solicitation->id) }}">
-                            {{ $solicitation->id }}
+                            {{ $solicitation->title }}
                         </a>
                     </td>
-                    <td>{{ $solicitation->title }}</td>
                     <td>{{ $solicitation->description }}</td>
                     <td>{{ $solicitation->category }}</td>
                     <td>{{ $solicitation->created_at->format('d/m/Y H:i:s') }}</td>

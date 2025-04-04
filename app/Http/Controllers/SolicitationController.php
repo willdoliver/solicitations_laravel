@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use App\Models\Solicitation;
@@ -22,7 +23,6 @@ class SolicitationController extends Controller
 
     public function index()
     {
-        // $solicitations = Solicitation::all();
         $solicitations = Solicitation::with('user')->get();
 
         foreach ($solicitations as $solicitation) {
@@ -46,37 +46,66 @@ class SolicitationController extends Controller
         ], [
             'title.required' => 'O Título é obrigatório',
             'category.required' => 'O campo Categoria é obrigatório',
+            'category.in' => 'A Categoria selecionada é inválida',
         ]);
 
-        $solicitacao = new Solicitation();
-        $solicitacao->title = $validatedData['title'];
-        $solicitacao->description = $validatedData['description'];
-        $solicitacao->category = $validatedData['category'];
-        $solicitacao->status = "aberta";
-        $solicitacao->user_id = Auth::user()->id;
-        $solicitacao->created_at = now();
-        $solicitacao->save();
+        $solicitation = new Solicitation();
+        $solicitation->title = $validatedData['title'];
+        $solicitation->description = $validatedData['description'];
+        $solicitation->category = $validatedData['category'];
+        $solicitation->status = "aberta";
+        $solicitation->user_id = Auth::user()->id;
+        $solicitation->created_at = now();
+        $solicitation->save();
 
-        session()->flash('success', 'Solicitação criada com sucesso!');
-        return redirect()->route('solicitations.index');
+        if ($request->wantsJson()) {
+            return response()->json([
+                'id' => $solicitation->id,
+                'message' => 'Solicitação criada com sucesso!',
+            ], 201);
+        } else {
+            session()->flash('success', 'Solicitação criada com sucesso!');
+            return redirect()->route('solicitations.index');
+        }
     }
 
     public function show($id)
     {
-        $solicitation = Solicitation::find($id);
+        try {
+            $solicitation = Solicitation::findOrFail($id);
+        } catch (ModelNotFoundException $e) {
+            session()->flash('error', 'Solicitação não encontrada');
+            return redirect()->route('solicitations.index');
+        }
 
         return view('solicitations.show', compact('solicitation'));
     }
 
     public function edit($id)
     {
-        $solicitation = Solicitation::find($id);
+        try {
+            $solicitation = Solicitation::findOrFail($id);
+        } catch (ModelNotFoundException $e) {
+            session()->flash('error', 'Solicitação não encontrada');
+            return redirect()->route('solicitations.index');
+        }
 
         return view('solicitations.edit', compact('solicitation'));
     }
 
     public function update(Request $request, $id)
     {
+        try {
+            $solicitation = Solicitation::findOrFail($id);
+        } catch (ModelNotFoundException $e) {
+            if ($request->wantsJson()) {
+                return response()->json(['message' => 'Solicitação não encontrada!'], 404);
+            } else {
+                session()->flash('error', 'Solicitação não encontrada');
+                return redirect()->route('solicitations.index');
+            }
+        }
+        
         $validatedData = $request->validate([
             'title' => 'required|string',
             'description' => 'nullable|string',
@@ -85,13 +114,14 @@ class SolicitationController extends Controller
         ], [
             'title.required' => 'O Título é obrigatório',
             'status.required' => 'O Status é obrigatório',
+            'status.in' => 'O Status selecionado é inválido',
             'category.required' => 'O campo Categoria é obrigatório',
+            'category.in' => 'A Categoria selecionada é inválida',
         ]);
 
-        $solicitation = Solicitation::find($id);
-
         if ($solicitation['status'] == 'concluida') {
-            session()->flash('error', 'Não é possível editar uma solicitação já concluída');
+            $message = 'Não é possível editar uma solicitação já concluída';
+            session()->flash('error', $message);
         } else {
             $solicitation->title = $validatedData['title'];
             $solicitation->description = $validatedData['description'];
@@ -99,21 +129,38 @@ class SolicitationController extends Controller
             $solicitation->status = $validatedData['status'];
             $solicitation->save();
 
-            session()->flash('success', 'Solicitação atualizada com sucesso!');
+            $message = 'Solicitação atualizada com sucesso!';
+            session()->flash('success', $message);
         }
 
-        return redirect()->route('solicitations.index');
+        if ($request->wantsJson()) {
+            return response()->json([
+                'id' => $solicitation->id,
+                'message' => $message,
+            ], 201);
+        } else {
+            return redirect()->route('solicitations.index');
+        }
     }
 
     public function updateStatus(Request $request, $id)
     {
+        try {
+            $solicitation = Solicitation::findOrFail($id);
+        } catch (ModelNotFoundException $e) {
+            if ($request->wantsJson()) {
+                return response()->json(['message' => 'Solicitação não encontrada!'], 404);
+            } else {
+                session()->flash('error', 'Solicitação não encontrada');
+                return redirect()->route('solicitations.index');
+            }
+        }
+
         $validatedData = $request->validate([
             'status' => ['required', Rule::in(['aberta','em_andamento','concluida'])],
         ], [
             'status.required' => 'O Status é obrigatório',
         ]);
-
-        $solicitation = Solicitation::find($id);
 
         if ($solicitation['status'] == 'concluida') {
             $message = 'Não é possível editar uma solicitação já concluída';
@@ -131,7 +178,17 @@ class SolicitationController extends Controller
 
     public function destroy($id)
     {
-        $solicitation = Solicitation::find($id);
+        try {
+            $solicitation = Solicitation::findOrFail($id);
+        } catch (ModelNotFoundException $e) {
+            if (request()->wantsJson()) {
+                return response()->json(['message' => 'Solicitação não encontrada!'], 404);
+            } else {
+                session()->flash('error', 'Solicitação não encontrada');
+                return redirect()->route('solicitations.index');
+            }
+        }
+
         $solicitation->delete();
 
         session()->flash('success', 'Solicitação excluída com sucesso!');
