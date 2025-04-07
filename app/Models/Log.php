@@ -8,6 +8,11 @@ class Log extends Model
 {
     protected $table = 'logs';
 
+    public function user()
+    {
+        return $this->belongsTo(User::class);
+    }
+
     protected $fillable = [
         'user_id',
         'solicitation_id',

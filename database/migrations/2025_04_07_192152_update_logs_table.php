@@ -13,6 +13,7 @@ return new class extends Migration
     {
         Schema::table('logs', function (Blueprint $table) {
             $table->unsignedBigInteger('solicitation_id')->nullable()->after('user_id');
+            $table->text('description')->change();
         });
     }
 
@@ -23,6 +24,7 @@ return new class extends Migration
     {
         Schema::table('logs', function (Blueprint $table) {
             $table->dropColumn('solicitation_id');
+            $table->string('description')->change();
         });
     }
 };
