@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Services\LogService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -22,10 +23,13 @@ class LoginController extends Controller
             $credentials['name'] = $credentials['nome-email'];
         }
         unset($credentials['nome-email']);
-        var_dump($credentials);
 
         if (Auth::attempt($credentials)) {
-            var_dump("logged ok");
+            LogService::log(
+                'User logged',
+                'User logged into system'
+            );
+
             return redirect()->route('solicitations.index');
         }
 
@@ -36,6 +40,5 @@ class LoginController extends Controller
     {
         Auth::logout();
         return view('login/login');
-        // return redirect()->route('login');
     }
 }

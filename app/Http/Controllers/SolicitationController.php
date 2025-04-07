@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Services\LogService;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -73,6 +74,12 @@ class SolicitationController extends Controller
         $solicitation->created_at = now();
         $solicitation->save();
 
+        LogService::log(
+            'Solicitation created',
+            'Solicitation data: ' . json_encode( $solicitation->toArray()),
+            $solicitation->id
+        );
+
         if ($request->wantsJson()) {
             return response()->json([
                 'id' => $solicitation->id,
@@ -134,7 +141,7 @@ class SolicitationController extends Controller
             'category.in' => 'A Categoria selecionada é inválida',
         ]);
 
-        if ($solicitation['status'] == 'concluida') {
+        if ($solicitation['status'] === 'concluida') {
             $message = 'Não é possível editar uma solicitação já concluída';
             session()->flash('error', $message);
         } else {
@@ -147,6 +154,12 @@ class SolicitationController extends Controller
             $message = 'Solicitação atualizada com sucesso!';
             session()->flash('success', $message);
         }
+
+        LogService::log(
+            'Solicitation updated',
+            json_encode($solicitation->toArray()),
+            $solicitation->id
+        );
 
         if ($request->wantsJson()) {
             return response()->json([
@@ -181,12 +194,19 @@ class SolicitationController extends Controller
             $message = 'Não é possível editar uma solicitação já concluída';
             session()->flash('error', $message);
         } else {
+            $oldStatus = $solicitation->status;
             $solicitation->status = $validatedData['status'];
             $solicitation->save();
 
             $message = 'Status atualizado com sucesso!';
             session()->flash('success', $message);
         }
+
+        LogService::log(
+            'Solicitation updated',
+            'old status: ' . $oldStatus . ' / new status: ' . $solicitation->status,
+            $solicitation->id
+        );
 
         return response()->json(['message' => $message]);
     }
@@ -205,6 +225,12 @@ class SolicitationController extends Controller
         }
 
         $solicitation->delete();
+
+        LogService::log(
+            'Solicitation removed',
+            'Solicitation was removed by user',
+            $id
+        );
 
         session()->flash('success', 'Solicitação excluída com sucesso!');
         if (request()->wantsJson()) {

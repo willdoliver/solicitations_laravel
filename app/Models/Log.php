@@ -6,10 +6,11 @@ use Illuminate\Database\Eloquent\Model;
 
 class Log extends Model
 {
-    protected $table = 'log';
+    protected $table = 'logs';
 
     protected $fillable = [
         'user_id',
+        'solicitation_id',
         'action',
         'description',
         'created_at',
