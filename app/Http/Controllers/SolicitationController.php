@@ -21,9 +21,19 @@ class SolicitationController extends Controller
         $this->middleware('App\Http\Middleware\VerificarLogin');
     }
 
-    public function index()
+    public function index(Request $request)
     {
-        $solicitations = Solicitation::with('user')->get();
+        $query = Solicitation::with('user');
+
+        if ($request->has('search')) {
+            $searchTerm = $request->input('search');
+            $query->where(function ($q) use ($searchTerm) {
+                $q->where('title', 'like', "%$searchTerm%")
+                  ->orWhere('description', 'like', "%$searchTerm%");
+            });
+        }
+
+        $solicitations = $query->get();
 
         foreach ($solicitations as $solicitation) {
             $solicitation->status = $STATUS[$solicitation->status] ?? $solicitation->status;

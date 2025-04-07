@@ -15,6 +15,18 @@
     @endif
 
     <h1>Solicitações</h1>
+
+    <div class="mb-3">
+        <form action="{{ route('solicitations.index') }}" method="GET">
+            <div class="input-group">
+                <input type="text" class="form-control" name="search"
+                    placeholder="Buscar por título ou descrição"
+                    value="{{ request('search') }}">
+                <button type="submit" class="btn btn-primary">Buscar</button>
+            </div>
+        </form>
+    </div>
+
     <table class="table table-striped">
         <thead>
             <tr>
