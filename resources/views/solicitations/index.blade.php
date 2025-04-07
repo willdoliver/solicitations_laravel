@@ -27,15 +27,27 @@
         </form>
     </div>
 
-    <table class="table table-striped">
+    <table class="table table-striped" id="solicitations-table">
         <thead>
             <tr>
-                <th>Título</th>
+            <th onclick="sortTable('title')">
+                    Título
+                    <i id="title-sort-icon" class="fas fa-sort"></i>
+                </th>
                 <th>Descrição</th>
-                <th>Categoria</th>
-                <th>Data de Criação</th>
+                <th onclick="sortTable('category')">
+                    Categoria
+                    <i id="category-sort-icon" class="fas fa-sort"></i>
+                </th>
+                <th onclick="sortTable('created_at')">
+                    Data de Criação
+                    <i id="created_at-sort-icon" class="fas fa-sort"></i>
+                </th>
                 <th>Solicitante</th>
-                <th>Status</th>
+                <th onclick="sortTable('status')">
+                    Status
+                    <i id="status-sort-icon" class="fas fa-sort"></i>
+                </th>
                 <th>Ações</th>
             </tr>
         </thead>
@@ -46,7 +58,11 @@
                 </tr>
             @endif
             @foreach($solicitations as $solicitation)
-                <tr>
+                <tr data-title="{{ $solicitation->title }}"
+                    data-category="{{ $solicitation->category }}"
+                    data-created_at="{{ $solicitation->created_at->timestamp }}"
+                    data-status="{{ $solicitation->status }}
+                ">
                     <td>
                         <a href="{{ route('solicitations.show', $solicitation->id) }}">
                             {{ $solicitation->title }}
@@ -128,5 +144,64 @@
             console.log(error);
         });
     };
+
+    let currentOrderBy = 'created_at';
+    let currentOrderDirection = 'desc';
+
+    function sortTable(column) {
+        const table = document.getElementById('solicitations-table');
+        const tbody = table.querySelector('tbody');
+        const rows = Array.from(tbody.querySelectorAll('tr'));
+
+        // Determine the new order direction
+        let newOrderDirection = 'asc';
+        if (currentOrderBy === column && currentOrderDirection === 'asc') {
+            newOrderDirection = 'desc';
+        }
+
+        // Sort the rows
+        rows.sort((a, b) => {
+            const aValue = a.dataset[column];
+            const bValue = b.dataset[column];
+
+            let comparison = 0;
+
+            if (column === 'created_at') {
+                comparison = parseInt(aValue) - parseInt(bValue);
+            } else {
+                comparison = aValue.localeCompare(bValue);
+            }
+
+            return newOrderDirection === 'asc' ? comparison : -comparison;
+        });
+
+        // Update the table
+        rows.forEach(row => tbody.appendChild(row));
+
+        // Update the current order
+        currentOrderBy = column;
+        currentOrderDirection = newOrderDirection;
+
+        // Update the sort icons
+        updateSortIcons();
+    }
+
+    function updateSortIcons() {
+        const icons = document.querySelectorAll('i[id$="-sort-icon"]');
+
+        icons.forEach(icon => {
+            icon.classList.remove('fa-sort-up', 'fa-sort-down');
+            icon.classList.add('fa-sort');
+
+        });
+
+        const currentIcon = document.getElementById(currentOrderBy + '-sort-icon');
+        if(currentIcon){
+            currentIcon.classList.remove('fa-sort');
+            currentIcon.classList.add(currentOrderDirection === 'asc' ? 'fa-sort-up' : 'fa-sort-down');
+        }
+    }
+
+    updateSortIcons();
 </script>
     

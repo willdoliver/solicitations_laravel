@@ -25,6 +25,7 @@ class SolicitationController extends Controller
     {
         $query = Solicitation::with('user');
 
+        // filter
         if ($request->has('search')) {
             $searchTerm = $request->input('search');
             $query->where(function ($q) use ($searchTerm) {
@@ -33,6 +34,10 @@ class SolicitationController extends Controller
             });
         }
 
+        // order
+        $query->orderBy('created_at', 'desc');
+
+        // get results
         $solicitations = $query->get();
 
         foreach ($solicitations as $solicitation) {
