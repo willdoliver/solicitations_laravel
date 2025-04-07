@@ -299,4 +299,39 @@ class SolicitationControllerTest extends TestCase
         }
     }
 
+    public function test_index_filters_by_search_term(): void
+    {
+        Solicitation::factory()->create(['title' => 'Solicitação 1', 'description' => 'Descrição 1']);
+        Solicitation::factory()->create(['title' => 'Solicitação 2', 'description' => 'Descrição 2']);
+        Solicitation::factory()->create(['title' => 'Outra Solicitação', 'description' => 'Outra Descrição']);
+
+        $request = new Request(['search' => 'Solicitação']);
+        $response = $this->controller->index($request);
+
+        $this->assertInstanceOf(\Illuminate\View\View::class, $response);
+        $this->assertArrayHasKey('solicitations', $response->getData());
+        $this->assertInstanceOf(\Illuminate\Database\Eloquent\Collection::class, $response->getData()['solicitations']);
+        $this->assertCount(3, $response->getData()['solicitations']);
+
+        // Search for "Descrição 1"
+        $request = new Request(['search' => 'Descrição 1']);
+        $response = $this->controller->index($request);
+        $this->assertCount(1, $response->getData()['solicitations']);
+
+        // Search for "Descrição 2"
+        $request = new Request(['search' => 'Descrição 2']);
+        $response = $this->controller->index($request);
+        $this->assertCount(1, $response->getData()['solicitations']);
+
+        // Search for "Outra"
+        $request = new Request(['search' => 'Outra']);
+        $response = $this->controller->index($request);
+        $this->assertCount(1, $response->getData()['solicitations']);
+
+        // Search for "inexistente"
+        $request = new Request(['search' => 'inexistente']);
+        $response = $this->controller->index($request);
+        $this->assertCount(0, $response->getData()['solicitations']);
+    }
+
 }
