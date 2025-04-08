@@ -16,16 +16,20 @@
 
     <h1>Solicitações</h1>
 
-    <div class="mb-3">
-        <form action="{{ route('solicitations.index') }}" method="GET">
-            <div class="input-group">
-                <input type="text" class="form-control" name="search"
+    <div class="mb-3 d-flex justify-content-between">
+        <form action="{{ route('solicitations.index') }}" method="GET" style="width: 100%;">
+            <div class="input-group d-flex">
+                <input type="text" class="form-control flex-grow-1" name="search"
                     placeholder="Buscar por título ou descrição"
                     value="{{ request('search') }}">
                 <button type="submit" class="btn btn-primary">Buscar</button>
             </div>
         </form>
+        <div class="export-csv">
+            <a href="{{ route('solicitations.export', ['search' => request('search')]) }}" class="btn btn-success">Exportar para CSV</a>
+        </div>
     </div>
+
 
     <table class="table table-striped" id="solicitations-table">
         <thead>
@@ -84,7 +88,7 @@
                             </select>
                         </td>
 
-                        <td style="display: flex; justify-content: flex-end;">
+                        <td class="d-flex justify-content-end">
                             <button
                                 style="display: none;"
                                 id="save-button-{{ $solicitation->id }}"
@@ -116,6 +120,16 @@
         <i class="fa fa-plus"></i> Solicitação
     </a>
 @endsection
+
+<style>
+    .export-csv {
+        text-align: right;
+    }
+
+    .btn {
+        margin: 0 0.3em;
+    }
+</style>
 
 <script src="https://unpkg.com/axios@0.21.1/dist/axios.min.js"></script>
 <script>

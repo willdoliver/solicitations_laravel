@@ -2,11 +2,12 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Solicitation;
+use App\Services\CsvExportService;
 use App\Services\LogService;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use App\Models\Solicitation;
 use Illuminate\Validation\Rule;
 
 class SolicitationController extends Controller
@@ -24,26 +25,7 @@ class SolicitationController extends Controller
 
     public function index(Request $request)
     {
-        $query = Solicitation::with('user');
-
-        // filter
-        if ($request->has('search')) {
-            $searchTerm = $request->input('search');
-            $query->where(function ($q) use ($searchTerm) {
-                $q->where('title', 'like', "%$searchTerm%")
-                  ->orWhere('description', 'like', "%$searchTerm%");
-            });
-        }
-
-        // order
-        $query->orderBy('created_at', 'desc');
-
-        // get results
-        $solicitations = $query->get();
-
-        foreach ($solicitations as $solicitation) {
-            $solicitation->status = $STATUS[$solicitation->status] ?? $solicitation->status;
-        }
+        $solicitations = $this->getSolicitations($request);
 
         return view('solicitations.index', compact('solicitations'));
     }
@@ -67,7 +49,7 @@ class SolicitationController extends Controller
 
         $solicitation = new Solicitation();
         $solicitation->title = $validatedData['title'];
-        $solicitation->description = $validatedData['description'];
+        $solicitation->description = $validatedData['description'] ?? null;
         $solicitation->category = $validatedData['category'];
         $solicitation->status = "aberta";
         $solicitation->user_id = Auth::user()->id;
@@ -121,7 +103,7 @@ class SolicitationController extends Controller
             $solicitation = Solicitation::findOrFail($id);
         } catch (ModelNotFoundException $e) {
             if ($request->wantsJson()) {
-                return response()->json(['message' => 'Solicitação não encontrada!'], 404);
+                return response()->json(['message' => 'Solicitação não encontrada'], 404);
             } else {
                 session()->flash('error', 'Solicitação não encontrada');
                 return redirect()->route('solicitations.index');
@@ -177,7 +159,7 @@ class SolicitationController extends Controller
             $solicitation = Solicitation::findOrFail($id);
         } catch (ModelNotFoundException $e) {
             if ($request->wantsJson()) {
-                return response()->json(['message' => 'Solicitação não encontrada!'], 404);
+                return response()->json(['message' => 'Solicitação não encontrada'], 404);
             } else {
                 session()->flash('error', 'Solicitação não encontrada');
                 return redirect()->route('solicitations.index');
@@ -217,7 +199,7 @@ class SolicitationController extends Controller
             $solicitation = Solicitation::findOrFail($id);
         } catch (ModelNotFoundException $e) {
             if (request()->wantsJson()) {
-                return response()->json(['message' => 'Solicitação não encontrada!'], 404);
+                return response()->json(['message' => 'Solicitação não encontrada'], 404);
             } else {
                 session()->flash('error', 'Solicitação não encontrada');
                 return redirect()->route('solicitations.index');
@@ -242,4 +224,37 @@ class SolicitationController extends Controller
             return redirect()->route('solicitations.index');
         }
     }
+
+    public function exportCsv(Request $request)
+    {
+        $solicitations = $this->getSolicitations($request);
+
+        return CsvExportService::export($solicitations);
+    }
+
+    private function getSolicitations(Request $request)
+    {
+        $query = Solicitation::with('user');
+
+        // filter
+        if ($request->has('search')) {
+            $searchTerm = $request->input('search');
+            $query->where(function ($q) use ($searchTerm) {
+                $q->where('title', 'like', "%$searchTerm%")
+                  ->orWhere('description', 'like', "%$searchTerm%");
+            });
+        }
+
+        // order
+        $query->orderBy('created_at', 'desc');
+
+        $solicitations = $query->get();
+
+        foreach ($solicitations as $solicitation) {
+            $solicitation->status = $STATUS[$solicitation->status] ?? $solicitation->status;
+        }
+
+        return $solicitations;
+    }
+
 }

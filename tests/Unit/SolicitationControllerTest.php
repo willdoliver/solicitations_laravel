@@ -186,7 +186,7 @@ class SolicitationControllerTest extends TestCase
         $responseData = json_decode($response->getContent(), true);
 
         $this->assertArrayHasKey('message', $responseData);
-        $this->assertEquals('Solicitação não encontrada!', $responseData['message']);
+        $this->assertEquals('Solicitação não encontrada', $responseData['message']);
     }
 
     public function test_update_without_title(): void

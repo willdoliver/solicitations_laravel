@@ -10,6 +10,7 @@ Route::get('/', [LoginController::class, 'index'])->name('login');
 Route::post('/login', [LoginController::class, 'login'])->name('login.post');
 Route::get('/logout', [LoginController::class, 'logout'])->name('logout');
 
+Route::get('/solicitations/export', [SolicitationController::class, 'exportCsv'])->name('solicitations.export');
 Route::get('/solicitations', [SolicitationController::class, 'index'])->name('solicitations.index');
 Route::get('/solicitations/create', [SolicitationController::class, 'create'])->name('solicitations.create');
 Route::post('/solicitations', [SolicitationController::class, 'store'])->name('solicitations.store');
