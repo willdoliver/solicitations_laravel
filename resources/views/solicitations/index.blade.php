@@ -48,20 +48,43 @@
         <div class="card-body p-0">
             <div class="table-responsive">
                 <table class="table table-striped table-hover mb-0" id="solicitations-table">
-                    <thead class="thead-light">
+                <thead class="thead-light">
                         <tr>
-                            <th>Título</th>
-                            <th>Descrição</th>
-                            <th>Categoria</th>
-                            <th>Data Criação</th>
-                            <th>Solicitante</th>
-                            <th>Status</th>
+                            <th scope="col" onclick="sortTable('title')" style="cursor: pointer;">
+                                Título <i id="title-sort-icon" class="fas fa-sort ml-1"></i>
+                            </th>
+                            <th>Descrição</th> 
+                            <th scope="col" onclick="sortTable('category')" style="cursor: pointer;">
+                                Categoria <i id="category-sort-icon" class="fas fa-sort ml-1"></i>
+                            </th>
+                            <th scope="col" onclick="sortTable('created_at')" style="cursor: pointer;">
+                                Data Criação <i id="created_at-sort-icon" class="fas fa-sort ml-1"></i>
+                            </th>
+                            <th scope="col" onclick="sortTable('user_name')" style="cursor: pointer;">
+                                Solicitante <i id="user_name-sort-icon" class="fas fa-sort ml-1"></i>
+                            </th>
+                            <th scope="col" onclick="sortTable('status')" style="cursor: pointer;">
+                                Status <i id="status-sort-icon" class="fas fa-sort ml-1"></i>
+                            </th>
                             <th class="text-right">Ações</th>
                         </tr>
                     </thead>
                     <tbody>
                         @forelse($solicitations as $solicitation)
-                            <tr>
+                            @php
+                                $displayStatus = match(strtolower($solicitation->status)) {
+                                    'aberta' => 'Aberta',
+                                    'em_andamento' => 'Em Andamento',
+                                    'concluida' => 'Concluída',
+                                    default => ucfirst($solicitation->status),
+                                };
+                            @endphp
+                            <tr data-title="{{ $solicitation->title }}"
+                                data-category="{{ $solicitation->category }}"
+                                data-created_at="{{ $solicitation->created_at->timestamp }}"
+                                data-user_name="{{ $solicitation->user->name ?? '' }}"
+                                data-status="{{ $displayStatus }}"
+                                >
                                 <td>
                                     <a href="{{ route('solicitations.show', $solicitation->id) }}">
                                         {{ $solicitation->title }}
@@ -121,4 +144,3 @@
     </div> 
 
 @endsection
-    

@@ -3,9 +3,6 @@
 .collapse {
   visibility: collapse;
 }
-.visible {
-  visibility: visible;
-}
 .sr-only {
   position: absolute;
   width: 1px;
@@ -47,9 +44,6 @@
 .flex {
   display: flex;
 }
-.grid {
-  display: grid;
-}
 .hidden {
   display: none;
 }
@@ -86,9 +80,6 @@
 }
 .text-right {
   text-align: right;
-}
-.whitespace-pre-wrap {
-  white-space: pre-wrap;
 }
 .filter {
   filter: var(--tw-blur,) var(--tw-brightness,) var(--tw-contrast,) var(--tw-grayscale,) var(--tw-hue-rotate,) var(--tw-invert,) var(--tw-saturate,) var(--tw-sepia,) var(--tw-drop-shadow,);

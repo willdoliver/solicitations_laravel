@@ -1,5 +1,7 @@
 @extends('layouts.app')
 
+@section('title', 'Detalhes da Solicitação #' . $solicitation->id)
+
 @section('content')
     <div class="card shadow-sm">
         <div class="card-header bg-light d-flex justify-content-between align-items-center">
