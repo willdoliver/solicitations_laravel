@@ -27,3 +27,5 @@ Desenvolver uma aplicação web simples para gerenciar solicitações internas d
 -   Subir Laravel
 
 `php artisan serve --port 8088`
+
+## Diagrama Usuário/Funcionalidades
