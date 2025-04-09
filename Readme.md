@@ -20,6 +20,10 @@ Desenvolver uma aplicação web simples para gerenciar solicitações internas d
 `./vendor/bin/phpunit` (caso esteja instalado somente no ambiente local)\
 `phpunit` (caso esteja instalado globalmente)
 
+-   Compilar JS/CSS com Laravel Mix
+
+`npm run dev`
+
 -   Subir Laravel
 
 `php artisan serve --port 8088`
