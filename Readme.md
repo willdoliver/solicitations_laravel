@@ -29,3 +29,5 @@ Desenvolver uma aplicação web simples para gerenciar solicitações internas d
 `php artisan serve --port 8088`
 
 ## Diagrama Usuário/Funcionalidades
+
+![Solicitations](https://github.com/user-attachments/assets/19fde573-b509-43f2-9d25-ba472a202bb9)
