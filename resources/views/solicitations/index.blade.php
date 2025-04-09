@@ -1,124 +1,124 @@
-@extends('layouts.header')
+@extends('layouts.app')
+
+@section('title', 'Lista de Solicitações')
 
 @section('content')
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 class="h3 mb-0">Solicitações</h1>
+        <a href="{{ route('solicitations.create') }}" class="btn btn-primary">
+            <i class="fas fa-plus mr-1"></i> Nova Solicitação
+        </a>
+    </div>
 
-    @if(session()->has('success'))
-        <div class="alert alert-success">
-            {{ session()->get('success') }}
-        </div>
-    @endif
+    <div class="card shadow-sm mb-4">
+        <div class="card-body">
+            <form action="{{ route('solicitations.index') }}" method="GET">
+                <div class="row align-items-end">
 
-    @if(session()->has('error'))
-        <div class="alert alert-danger">
-            {{ session()->get('error') }}
-        </div>
-    @endif
+                    <div class="col-md-8 col-lg-9 mb-2 mb-md-0">
+                        <label for="search" class="sr-only">Buscar</label>
+                        <div class="input-group">
+                            <input type="text" class="form-control" id="search" name="search"
+                                   placeholder="Buscar por título ou descrição..."
+                                   value="{{ request('search') }}">
+                            <div class="input-group-append">
+                                <button type="submit" class="btn btn-primary">
+                                    <i class="fas fa-search"></i> Buscar
+                                </button>
 
-    <h1>Solicitações</h1>
-
-    <div class="mb-3 d-flex justify-content-between">
-        <form action="{{ route('solicitations.index') }}" method="GET" style="width: 100%;">
-            <div class="input-group d-flex">
-                <input type="text" class="form-control flex-grow-1" name="search"
-                    placeholder="Buscar por título ou descrição"
-                    value="{{ request('search') }}">
-                <button type="submit" class="btn btn-primary">Buscar</button>
-            </div>
-        </form>
-        <div class="export-csv">
-            <a href="{{ route('solicitations.export', ['search' => request('search')]) }}" class="btn btn-success">Exportar para CSV</a>
+                                @if(request('search'))
+                                    <a href="{{ route('solicitations.index') }}" class="btn btn-outline-secondary" title="Limpar busca">
+                                        <i class="fas fa-times"></i>
+                                    </a>
+                                @endif
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4 col-lg-3 text-md-right">
+                        <a href="{{ route('solicitations.export', ['search' => request('search')]) }}" class="btn btn-outline-info btn-block">
+                            <i class="fas fa-file-csv mr-1"></i> Exportar para CSV
+                        </a>
+                    </div>
+                </div>
+            </form>
         </div>
     </div>
 
+    <div class="card shadow-sm">
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-striped table-hover mb-0" id="solicitations-table">
+                    <thead class="thead-light">
+                        <tr>
+                            <th>Título</th>
+                            <th>Descrição</th>
+                            <th>Categoria</th>
+                            <th>Data Criação</th>
+                            <th>Solicitante</th>
+                            <th>Status</th>
+                            <th class="text-right">Ações</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @forelse($solicitations as $solicitation)
+                            <tr>
+                                <td>
+                                    <a href="{{ route('solicitations.show', $solicitation->id) }}">
+                                        {{ $solicitation->title }}
+                                    </a>
+                                </td>
+                                <td>{{ Str::limit($solicitation->description, 100) }}</td>
+                                <td>{{ $solicitation->category }}</td>
+                                <td>{{ $solicitation->created_at->format('d/m/Y H:i') }}</td>
+                                <td>{{ $solicitation->user->name ?? 'N/A' }}</td>
 
-    <table class="table table-striped" id="solicitations-table">
-        <thead>
-            <tr>
-            <th onclick="sortTable('title')">
-                    Título
-                    <i id="title-sort-icon" class="fas fa-sort"></i>
-                </th>
-                <th>Descrição</th>
-                <th onclick="sortTable('category')">
-                    Categoria
-                    <i id="category-sort-icon" class="fas fa-sort"></i>
-                </th>
-                <th onclick="sortTable('created_at')">
-                    Data de Criação
-                    <i id="created_at-sort-icon" class="fas fa-sort"></i>
-                </th>
-                <th>Solicitante</th>
-                <th onclick="sortTable('status')">
-                    Status
-                    <i id="status-sort-icon" class="fas fa-sort"></i>
-                </th>
-                <th>Ações</th>
-            </tr>
-        </thead>
-        <tbody>
-            @if (!isset($solicitations) || $solicitations->isEmpty())
-                <tr>
-                    <td colspan="7">Nenhuma solicitação encontrada.</td>
-                </tr>
-            @else
-                @foreach($solicitations as $solicitation)
-                    <tr data-title="{{ $solicitation->title }}"
-                        data-category="{{ $solicitation->category }}"
-                        data-created_at="{{ $solicitation->created_at->timestamp }}"
-                        data-status="{{ $solicitation->status }}
-                    ">
-                        <td>
-                            <a href="{{ route('solicitations.show', $solicitation->id) }}">
-                                {{ $solicitation->title }}
-                            </a>
-                        </td>
-                        <td>{{ $solicitation->description }}</td>
-                        <td>{{ $solicitation->category }}</td>
-                        <td>{{ $solicitation->created_at->format('d/m/Y H:i:s') }}</td>
-                        <td>{{ $solicitation->user->name }}</td>
+                                <td>
+                                    <select id="status-{{ $solicitation->id }}"
+                                            onchange="showSaveButton({{ $solicitation->id }})"
+                                            class="form-control form-control-sm"
+                                            {{ $solicitation->status == 'Concluída' ? 'disabled' : '' }}
+                                    >
+                                        <option value="aberta" {{ $solicitation->status == 'aberta' ? 'selected' : '' }}>Aberta</option>
+                                        <option value="em_andamento" {{ $solicitation->status == 'em_andamento' ? 'selected' : '' }}>Em Andamento</option>
+                                        <option value="concluida" {{ $solicitation->status == 'concluida' ? 'selected' : '' }}>Concluída</option>
+                                    </select>
+                                </td>
 
-                        <td>
-                            <select id="status-{{ $solicitation->id }}" onchange="showSaveButton({{ $solicitation->id }})" class="form-control"
-                                {{ $solicitation->status == 'concluida' ? 'disabled' : '' }}
-                            >
-                                <option value="aberta" {{ $solicitation->status == 'aberta' ? 'selected' : '' }}>Aberta</option>
-                                <option value="em_andamento" {{ $solicitation->status == 'em_andamento' ? 'selected' : '' }}>Em Andamento</option>
-                                <option value="concluida" {{ $solicitation->status == 'concluida' ? 'selected' : '' }}>Concluída
-                                </option>
-                            </select>
-                        </td>
+                                <td class="text-right"> 
+                                    <div class="btn-group btn-group-sm" role="group">
+                                        <button style="display: none;"
+                                                id="save-button-{{ $solicitation->id }}"
+                                                class="btn btn-primary"
+                                                onclick="atualizarStatus({{ $solicitation->id }})">
+                                            <i class="fas fa-save"></i> Salvar
+                                        </button>
+                                        <a href="{{ route('solicitations.show', $solicitation->id) }}" class="btn btn-success" title="Ver">
+                                            <i class="fas fa-eye"></i>
+                                        </a>
+                                        <a href="{{ route('solicitations.edit', $solicitation->id) }}" class="btn btn-info" title="Editar">
+                                            <i class="fas fa-edit"></i>
+                                        </a>
+                                        <button type="button" class="btn btn-danger" title="Excluir"
+                                                onclick="if(confirm('Tem certeza que deseja excluir?')) { document.getElementById('delete-form-{{ $solicitation->id }}').submit(); }">
+                                            <i class="fas fa-trash-alt"></i>
+                                        </button>
+                                    </div>
+                                    <form id="delete-form-{{ $solicitation->id }}" action="{{ route('solicitations.destroy', $solicitation->id) }}" method="POST" style="display: none;">
+                                        @csrf
+                                        @method('DELETE')
+                                    </form>
+                                </td>
+                            </tr>
+                        @empty
+                            <tr>
+                                <td colspan="7" class="text-center text-muted py-4">Nenhuma solicitação encontrada.</td>
+                            </tr>
+                        @endforelse
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div> 
 
-                        <td class="d-flex justify-content-end">
-                            <button
-                                style="display: none;"
-                                id="save-button-{{ $solicitation->id }}"
-                                class="btn btn-primary"
-                                onclick="atualizarStatus({{ $solicitation->id }})"
-                            >Salvar</button>
-
-                            <a href="{{ route('solicitations.show', $solicitation->id) }}">
-                                <button class="btn btn-success" type="submit">Ver</button>
-                            </a>
-                            <a href="{{ route('solicitations.edit', $solicitation->id) }}">
-                                <button class="btn btn-primary" type="submit">Editar</button>
-                            </a>
-                            <a href="#" onclick="document.getElementById('delete-form-{{ $solicitation->id }}').submit()">
-                                <button class="btn btn-danger" type="button">Excluir</button>
-                            </a>
-                            <form id="delete-form-{{ $solicitation->id }}" action="{{ route('solicitations.destroy', $solicitation->id) }}" method="post" style="display: none;">
-                                @csrf
-                                @method('DELETE')
-                            </form>
-                        </td>
-                    </tr>
-                @endforeach
-            @endif
-        </tbody>
-    </table>
-
-    <a href="solicitations/create" class="btn btn-success">
-        <i class="fa fa-plus"></i> Solicitação
-    </a>
 @endsection
-
     

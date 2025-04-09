@@ -26,8 +26,8 @@ class LoginController extends Controller
 
         if (Auth::attempt($credentials)) {
             LogService::log(
-                'User logged',
-                'User logged into system'
+                'Novo acesso',
+                'Usuário acessou o sistema'
             );
 
             return redirect()->route('solicitations.index');

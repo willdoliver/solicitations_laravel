@@ -57,8 +57,8 @@ class SolicitationController extends Controller
         $solicitation->save();
 
         LogService::log(
-            'Solicitation created',
-            'Solicitation data: ' . json_encode( $solicitation->toArray()),
+            'Solicitação criada',
+            'Dados: ' . json_encode( $solicitation->toArray()),
             $solicitation->id
         );
 
@@ -138,7 +138,7 @@ class SolicitationController extends Controller
         }
 
         LogService::log(
-            'Solicitation updated',
+            'Solicitação atualizada',
             json_encode($solicitation->toArray()),
             $solicitation->id
         );
@@ -172,7 +172,7 @@ class SolicitationController extends Controller
             'status.required' => 'O Status é obrigatório',
         ]);
 
-        if ($solicitation['status'] == 'concluida') {
+        if ($solicitation['status'] === 'concluida') {
             $message = 'Não é possível editar uma solicitação já concluída';
             session()->flash('error', $message);
         } else {
@@ -180,15 +180,15 @@ class SolicitationController extends Controller
             $solicitation->status = $validatedData['status'];
             $solicitation->save();
 
+            LogService::log(
+                'Solicitação atualizada',
+                'Status antigo: ' . $oldStatus . ' / Novo status: ' . $solicitation->status,
+                $solicitation->id
+            );
+
             $message = 'Status atualizado com sucesso!';
             session()->flash('success', $message);
         }
-
-        LogService::log(
-            'Solicitation updated',
-            'old status: ' . $oldStatus . ' / new status: ' . $solicitation->status,
-            $solicitation->id
-        );
 
         return response()->json(['message' => $message]);
     }
@@ -209,8 +209,8 @@ class SolicitationController extends Controller
         $solicitation->delete();
 
         LogService::log(
-            'Solicitation removed',
-            'Solicitation was removed by user',
+            'Solicitação removida',
+            'Solicitação removida pelo usuário',
             $id
         );
 

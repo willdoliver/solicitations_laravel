@@ -3,10 +3,7 @@ let mix = require("laravel-mix");
 mix.js("resources/js/app.js", "public/js").postCss(
     "resources/css/app.css",
     "public/css",
-    [
-        require("@tailwindcss/postcss"), // Change this line
-        // require('autoprefixer'), // Autoprefixer is often included by default or via Tailwind
-    ]
+    [require("@tailwindcss/postcss"), require("autoprefixer")]
 );
 
 // Add versioning for cache busting in production

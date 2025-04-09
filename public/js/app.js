@@ -7084,6 +7084,15 @@ window.atualizarStatus = function (id) {
     console.log(error);
   });
 };
+window.excluirSolicitacao = function (id) {
+  if (confirm("Tem certeza que deseja excluir essa solicitação?")) {
+    axios["delete"]("/solicitations/" + id).then(function (response) {
+      window.location.href = response.data.redirect_url;
+    })["catch"](function (error) {
+      console.log(error);
+    });
+  }
+};
 var currentOrderBy = "created_at";
 var currentOrderDirection = "desc";
 window.sortTable = function (column) {

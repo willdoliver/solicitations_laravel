@@ -26,6 +26,19 @@ window.atualizarStatus = function (id) {
         });
 };
 
+window.excluirSolicitacao = function (id) {
+    if (confirm("Tem certeza que deseja excluir essa solicitação?")) {
+        axios
+            .delete("/solicitations/" + id)
+            .then(function (response) {
+                window.location.href = response.data.redirect_url;
+            })
+            .catch(function (error) {
+                console.log(error);
+            });
+    }
+};
+
 let currentOrderBy = "created_at";
 let currentOrderDirection = "desc";
 
