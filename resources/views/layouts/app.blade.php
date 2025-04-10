@@ -3,10 +3,11 @@
 <head>
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+    <link href="{{ mix('css/app.css') }}" rel="stylesheet">
     <title>@yield('title', 'Smart Solicitations')</title>
     @yield('head')
 </head>
-<body>
+<body class="login-page-wrapper @auth body-logged-in-background @endauth">
     @auth
         @include('layouts.header')
     @endauth

@@ -4,7 +4,7 @@
 
 @section('content')
     <div class="row justify-content-center">
-        <div class="col-md-6 col-lg-4">
+        <div class="col-md-10 col-lg-4">
             <div class="card shadow-sm"> 
                 <div class="card-body">
                     <h2 class="card-title text-center mb-4">Login</h2>
@@ -56,7 +56,7 @@
                             </div>
                         @endif
 
-                        <button type="submit" class="btn btn-primary btn-block mt-4">Entrar</button>
+                        <button id="login-button" type="submit" class="btn btn-primary btn-block mt-4">Entrar</button>
                     </form>
                 </div>
             </div>
